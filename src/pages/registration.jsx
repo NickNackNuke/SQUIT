@@ -1,22 +1,23 @@
 import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import { createUser } from '../api/api';
 import { useNavigate } from 'react-router-dom';
 
-function Registration() {
+const Registration = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: '',
+    first_name: '',
+    last_name: '',
     age: '',
     email: '',
     password: '',
     confirmPassword: '',
   });
   const [errors, setErrors] = useState({});
- 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
- 
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -27,7 +28,8 @@ function Registration() {
 
   const validate = () => {
     const newErrors = {};
-    if (!formData.name) newErrors.name = 'Name is required';
+    if (!formData.first_name) newErrors.first_name = 'First name is required';
+    if (!formData.last_name) newErrors.last_name = 'Last name is required';
     if (!formData.age || isNaN(formData.age)) newErrors.age = 'Valid age is required';
     if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Valid email is required';
     if (!formData.password) newErrors.password = 'Password is required';
@@ -35,31 +37,53 @@ function Registration() {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
     } else {
-      alert('Registered Successfully');
-      navigate('/login');
+      try {
+        const newUser = { ...formData };
+        await createUser(newUser); // Call the createUser API function
+        alert('Registered Successfully');
+        navigate('/login');
+      } catch (error) {
+        console.error("Error creating user", error);
+        alert('Registration failed. Please try again.');
+      }
     }
   };
 
   return (
     <Form onSubmit={handleSubmit}>
-      <Form.Group className="mb-3" controlId="Name_ID">
-        <Form.Label>Name</Form.Label>
+      <Form.Group className="mb-3" controlId="FirstName_ID">
+        <Form.Label>First Name</Form.Label>
         <Form.Control
           type="text"
-          placeholder="Enter your name"
-          name="name"
-          value={formData.name}
+          placeholder="Enter your first name"
+          name="first_name"
+          value={formData.first_name}
           onChange={handleChange}
-          isInvalid={!!errors.name}
+          isInvalid={!!errors.first_name}
         />
         <Form.Control.Feedback type="invalid">
-          {errors.name}
+          {errors.first_name}
+        </Form.Control.Feedback>
+      </Form.Group>
+
+      <Form.Group className="mb-3" controlId="LastName_ID">
+        <Form.Label>Last Name</Form.Label>
+        <Form.Control
+          type="text"
+          placeholder="Enter your last name"
+          name="last_name"
+          value={formData.last_name}
+          onChange={handleChange}
+          isInvalid={!!errors.last_name}
+        />
+        <Form.Control.Feedback type="invalid">
+          {errors.last_name}
         </Form.Control.Feedback>
       </Form.Group>
 
@@ -98,55 +122,58 @@ function Registration() {
       </Form.Group>
 
       <Form.Group className="mb-3" controlId="Password_ID">
-    <Form.Label>Password</Form.Label>
-    <Form.Control
-        type={showPassword ? "text" : "password"}
-        placeholder="Password"
-        name="password"
-        value={formData.password}
-        onChange={handleChange}
-        isInvalid={!!errors.password}
-    />
-    <Form.Control.Feedback type="invalid">
-        {errors.password}
-    </Form.Control.Feedback>
-</Form.Group>
-<Form.Group className="mb-3" controlId="ShowPassword_ID">
-    <Form.Check 
-        type="checkbox" 
-        label="Show Password" 
-        checked={showPassword}
-        onChange={() => setShowPassword(!showPassword)}
-    />
-</Form.Group>
+        <Form.Label>Password</Form.Label>
+        <Form.Control
+          type={showPassword ? "text" : "password"}
+          placeholder="Password"
+          name="password"
+          value={formData.password}
+          onChange={handleChange}
+          isInvalid={!!errors.password}
+        />
+        <Form.Control.Feedback type="invalid">
+          {errors.password}
+        </Form.Control.Feedback>
+      </Form.Group>
 
-<Form.Group className="mb-3" controlId="formBasicConfirmPassword">
-    <Form.Label>Confirm Password</Form.Label>
-    <Form.Control
-        type={showConfirmPassword ? "text" : "password"}
-        placeholder="Confirm Password"
-        name="confirmPassword"
-        value={formData.confirmPassword}
-        onChange={handleChange}
-        isInvalid={!!errors.confirmPassword}
-    />
-    <Form.Control.Feedback type="invalid">
-        {errors.confirmPassword}
-    </Form.Control.Feedback>
-</Form.Group>
-<Form.Group className="mb-3" controlId="ShowConfirmPassword_ID">
-    <Form.Check 
-        type="checkbox" 
-        label="Show Password" 
-        checked={showConfirmPassword}
-        onChange={() => setShowConfirmPassword(!showConfirmPassword)}
-    />
-</Form.Group>
+      <Form.Group className="mb-3" controlId="ShowPassword_ID">
+        <Form.Check 
+          type="checkbox" 
+          label="Show Password" 
+          checked={showPassword}
+          onChange={() => setShowPassword(!showPassword)}
+        />
+      </Form.Group>
+
+      <Form.Group className="mb-3" controlId="ConfirmPassword_ID">
+        <Form.Label>Confirm Password</Form.Label>
+        <Form.Control
+          type={showConfirmPassword ? "text" : "password"}
+          placeholder="Confirm Password"
+          name="confirmPassword"
+          value={formData.confirmPassword}
+          onChange={handleChange}
+          isInvalid={!!errors.confirmPassword}
+        />
+        <Form.Control.Feedback type="invalid">
+          {errors.confirmPassword}
+        </Form.Control.Feedback>
+      </Form.Group>
+
+      <Form.Group className="mb-3" controlId="ShowPassword_ID">
+        <Form.Check 
+          type="checkbox" 
+          label="Show Password" 
+          checked={showPassword}
+          onChange={() => setShowConfirmPassword(!showPassword)}
+        />
+      </Form.Group>
+
       <Button variant="primary" type="submit">
-        Submit
+        Register
       </Button>
     </Form>
   );
-}
+};
 
 export default Registration;
