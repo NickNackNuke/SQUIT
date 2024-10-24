@@ -39,8 +39,10 @@ const Registration = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('Form submitted');
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
+      console.log('Validation errors:', validationErrors);
       setErrors(validationErrors);
     } else {
       try {
@@ -160,12 +162,12 @@ const Registration = () => {
         </Form.Control.Feedback>
       </Form.Group>
 
-      <Form.Group className="mb-3" controlId="ShowPassword_ID">
+      <Form.Group className="mb-3" controlId="ShowConfirmPassword_ID">
         <Form.Check 
           type="checkbox" 
           label="Show Password" 
-          checked={showPassword}
-          onChange={() => setShowConfirmPassword(!showPassword)}
+          checked={showConfirmPassword}
+          onChange={() => setShowConfirmPassword(!showConfirmPassword)}
         />
       </Form.Group>
 
